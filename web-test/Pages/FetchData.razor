@@ -1,0 +1,88 @@
+﻿@page "/fetchdata"
+
+<PageTitle>Formulario Ventas</PageTitle>
+
+<h1>Formulario Ventas</h1>
+
+
+<EditForm class="formulario-login" Model="@venta" OnValidSubmit="RealizarVenta">
+
+    <InputSelect @bind-Value="productos">
+        @if (productos == null)
+        {
+            <option value=""></option>
+        }
+        else
+        {
+            
+        }
+        @foreach (var item in productos)
+        {
+            <option value="@item.producto_id">@item.producto_nombre</option>
+            
+        }
+        @if (productos != null)
+        {
+            <option value="">None</option>
+        }
+    </InputSelect>
+    <InputSelect @bind-Value="clientes">
+        @if (clientes == null)
+        {
+            <option value=""></option>
+        }
+        @foreach (var item in clientes)
+        {
+            <option value="@item.cliente_id">@item.cliente_nombre</option>
+
+        }
+        @if (clientes != null)
+        {
+            <option value="">None</option>
+        }
+    </InputSelect>
+    <InputSelect @bind-Value="Empleados">
+        @if (Empleados == null)
+        {
+            <option value=""></option>
+        }
+        @foreach (var item in Empleados)
+        {
+            <option value="@item.empleado_id">@item.empleado_nombre</option>
+
+        }
+        @if (Empleados != null)
+        {
+            <option value="">None</option>
+        }
+    </InputSelect>
+
+</EditForm>
+
+
+@code {
+    Ventas venta = new Ventas();
+    IEnumerable<Clientes> clientes;
+    IEnumerable<Productos> productos;
+    IEnumerable<Empleados> Empleados;
+
+    protected override void OnInitialized()
+    {
+        var http = new HttpClient();
+
+        var Data = http.GetAsync("http://localhost:5066/api/productos").GetAwaiter().GetResult();
+        productos = Data.Content.ReadFromJsonAsync<IEnumerable<Productos>>().GetAwaiter().GetResult();
+
+
+        Data = http.GetAsync("http://localhost:5066/api/clientes").GetAwaiter().GetResult();
+        clientes = Data.Content.ReadFromJsonAsync<IEnumerable<Clientes>>().GetAwaiter().GetResult();
+
+        Data = http.GetAsync("http://localhost:5066/api/empleado").GetAwaiter().GetResult();
+        Empleados = Data.Content.ReadFromJsonAsync<IEnumerable<Empleados>>().GetAwaiter().GetResult();
+    }
+    private async Task RealizarVenta()
+    {
+        
+    }
+
+}

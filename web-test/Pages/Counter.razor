@@ -1,0 +1,65 @@
+﻿@page "/counter"
+
+<PageTitle>Crud Productos</PageTitle>
+
+<h1>Crud Productos</h1>
+
+
+
+<EditForm class="formulario-login" Model="@productosmodel" OnValidSubmit="buscarproducto">
+    <InputText type="text" placeholder="Ingrese el id del producto" @bind-Value="productosmodel.producto_descripcion" />
+    <button class="btn btn-primary" @onclick="buscarproducto">Buscar</button>
+
+
+</EditForm>
+
+<div>
+    <EditForm class="formulario-login" Model="@productosBusquedamodel" >
+        <InputText type="text" placeholder="Nombre del producto" @bind-Value="productosBusquedamodel.producto_nombre" />
+        <InputText type="text" placeholder="Descripcion del producto" @bind-Value="productosBusquedamodel.producto_descripcion" />
+        
+        <button class="btn btn-primary" @onclick="formularioupdate">update</button>
+        <button class="btn btn-primary" @onclick="formulariocrear">crear</button>
+        <button class="btn btn-primary" @onclick="formulariodelete">eliminar</button>
+
+
+    </EditForm>
+    
+</div>
+
+@code {
+    Productos productosmodel = new Productos();
+    Productos productosBusquedamodel = new Productos();
+
+    private async Task buscarproducto()
+    {
+        var http = new HttpClient();
+        var data = http.GetAsync($"http://localhost:5066/api/productos/{Guid.Parse(productosmodel.producto_descripcion)}").GetAwaiter().GetResult();
+        productosBusquedamodel = data.Content.ReadFromJsonAsync<Productos>().GetAwaiter().GetResult();
+
+    }
+    private void formularioupdate()
+    {
+        var http = new HttpClient();
+        var stringBody = System.Text.Json.JsonSerializer.Serialize(productosBusquedamodel);
+        var stringBodyContent = new StringContent(stringBody, encoding: System.Text.Encoding.UTF8, "application/json");
+        var data = http.PutAsync($"http://localhost:5066/api/productos", stringBodyContent).GetAwaiter().GetResult();
+        var result = data.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+    }
+    private void formulariodelete()
+    {
+        var http = new HttpClient();
+        var data = http.DeleteAsync($"http://localhost:5066/api/productos/{productosBusquedamodel.producto_id}").GetAwaiter().GetResult();
+        var result = data.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+    }
+    private void formulariocrear()
+    {
+        var http = new HttpClient();
+        productosBusquedamodel.producto_id = Guid.NewGuid();
+        productosBusquedamodel.create_at = DateTime.Now;
+        productosBusquedamodel.modify_at = DateTime.Now;
+        var stringBody = System.Text.Json.JsonSerializer.Serialize(productosBusquedamodel);
+        var stringBodyContent = new StringContent(stringBody, encoding: System.Text.Encoding.UTF8, "application/json");
+        var data = http.PostAsync($"http://localhost:5066/api/productos", stringBodyContent).GetAwaiter().GetResult();
+    }
+}

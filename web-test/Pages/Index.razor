@@ -1,0 +1,35 @@
+﻿@page "/"
+
+<PageTitle>Ventas</PageTitle>
+
+<h1>Formulario de ventas</h1>
+
+<div class="grid">
+    <div class="grid-header">
+        <div class="dgrid-item">Producto Id</div>
+        <div class="dgrid-item">Producto Nombre</div>
+        <div class="dgrid-item">Inventario disponible</div>
+    </div>
+    <div class="grid-body">
+        @foreach (var item in @dataset)
+        {
+            <div class="grid-item">@item.Item1.producto_id</div>
+            <div class="grid-item">@item.Item1.producto_nombre</div>
+            <div class="grid-item">@item.Item2.inventario_stock</div>
+
+        }
+    </div>
+</div>
+
+@code {
+    HttpClient http;
+    IEnumerable< Tuple<Productos, Inventarios>> dataset;
+    protected override async void OnInitialized()
+    {
+        http = new HttpClient();
+        var data =  http.GetAsync("http://localhost:5066/api/ventas").GetAwaiter().GetResult();
+        data = data;
+        dataset = await data.Content.ReadFromJsonAsync<IEnumerable<Tuple<Productos, Inventarios>>>();
+    }
+
+}
